@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HD900B Media Station</title>
+<style>
+:root{
+  --bg:#0b1020;--panel:#131a30;--panel2:#1a2340;--line:#27325a;--txt:#e7ecff;--dim:#8d9acb;--acc:#4da3ff;--acc2:#7c5cff;
+  --ok:#3ddc97;--warn:#ffbf47;--bad:#ff5d6c;--hdd:#ff9f43;--usb:#4da3ff;--sd:#3ddc97;--dvd:#c58bff;
+}
+@media (prefers-color-scheme: light){:root{--bg:#eef2fb;--panel:#fff;--panel2:#f3f6ff;--line:#d5dcf0;--txt:#16203f;--dim:#5b6894}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--panel),var(--panel2));position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.08em;font-size:18px}
+.logo b{color:var(--acc)}
+.sub{color:var(--dim);font-size:12px}
+.sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);font-size:12px;color:var(--dim)}
+.chip.ok{color:var(--ok);border-color:#2a6a55}.chip.bad{color:var(--bad)}.chip.warn{color:var(--warn)}
+button,select,input[type=text]{font:inherit;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.pri{background:linear-gradient(90deg,var(--acc),var(--acc2));border:0;color:#fff;font-weight:700}
+button.dng:hover{border-color:var(--bad);color:var(--bad)}
+main{padding:20px 22px;max-width:1500px;margin:0 auto}
+h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:26px 0 10px;font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c,var(--acc))}
+.card.HDD{--c:var(--hdd)}.card.USB{--c:var(--usb)}.card.SD{--c:var(--sd)}.card.DVD{--c:var(--dvd)}
+.card .top{display:flex;align-items:center;gap:12px}
+.ico{width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--c) 22%,transparent);display:grid;place-items:center;font-size:24px}
+.card .nm{font-weight:800;font-size:16px;letter-spacing:.04em}
+.card .md{color:var(--dim);font-size:12px}
+.cap{display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--dim)}
+.bar{height:9px;border-radius:5px;background:var(--panel2);overflow:hidden;margin-top:5px;border:1px solid var(--line)}
+.bar>i{display:block;height:100%;background:var(--c,var(--acc));transition:width .4s}
+.card .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.card .tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1000px){.panes{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:380px;max-height:620px}
+.pane.drop{outline:3px dashed var(--acc);outline-offset:-6px}
+.ph{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.crumbs{flex:1;min-width:120px;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.crumbs a{color:var(--acc);cursor:pointer;text-decoration:none}
+.list{overflow:auto;flex:1}
+table{width:100%;border-collapse:collapse}
+td,th{padding:5px 10px;text-align:left;white-space:nowrap}
+th{font-size:11px;color:var(--dim);letter-spacing:.1em;position:sticky;top:0;background:var(--panel);z-index:1}
+tr.row:hover{background:var(--panel2)}
+tr.row.sel{background:color-mix(in srgb,var(--acc) 18%,transparent)}
+td.n{width:100%;max-width:1px;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+td.r{text-align:right;color:var(--dim);font-size:12px}
+.pf{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--line);align-items:center;font-size:12px;color:var(--dim);flex-wrap:wrap}
+.job{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.job .h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.job .t{font-weight:700}
+.pbar{height:16px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);overflow:hidden;position:relative;margin:10px 0 6px}
+.pbar .c{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s}
+.pbar .v{position:absolute;left:0;top:0;bottom:0;background:var(--ok);opacity:.9;transition:width .3s}
+.pbar span{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px #0008}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+.stats b{color:var(--txt)}
+.log{background:#0006;border-radius:8px;padding:8px;font:12px/1.4 ui-monospace,Menlo,monospace;max-height:180px;overflow:auto;margin-top:8px;white-space:pre-wrap;word-break:break-all}
+.opts{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:13px}
+label.o{display:inline-flex;gap:6px;align-items:center;cursor:pointer;color:var(--dim)}
+.toast{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:20}
+.toast div{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--acc);padding:10px 14px;border-radius:8px;max-width:420px;box-shadow:0 6px 24px #0006}
+.toast div.bad{border-left-color:var(--bad)}.toast div.ok{border-left-color:var(--ok)}
+.state-done{color:var(--ok)}.state-error,.state-done_with_errors{color:var(--bad)}.state-cancelled{color:var(--warn)}
+dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:520px}
+dialog::backdrop{background:#0009}
+.empty{padding:30px;text-align:center;color:var(--dim)}
+.tvhint{font-size:12px;color:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">HD900B <b>MEDIA STATION</b></div><div class="sub" id="sub">multi-storage hub · LAN</div></div>
+  <div class="sp"></div>
+  <span class="chip" id="cMem">mem —</span>
+  <span class="chip" id="cJobs">idle</span>
+  <label class="o"><input type="checkbox" id="optAuto"> <span data-t="auto">Auto-import on insert</span></label>
+  <select id="optVerify" title="verification">
+    <option value="fast">Verify: fast (XXH64)</option><option value="sha256">Verify: SHA-256</option><option value="none">Verify: off</option>
+  </select>
+  <button id="btnLang">日本語</button>
+</header>
+<main>
+  <h2 data-t="storage">Storage</h2>
+  <div class="cards" id="cards"></div>
+
+  <h2 data-t="jobs">Transfers</h2>
+  <div id="jobs"><div class="empty" data-t="nojobs">No transfers yet.</div></div>
+
+  <h2 data-t="browse">Browse &amp; copy</h2>
+  <div class="opts" style="margin-bottom:10px">
+    <label class="o"><input type="checkbox" id="optDedupe" checked> <span data-t="dedupe">Skip duplicate content</span></label>
+    <label class="o"><input type="checkbox" id="optSort"> <span data-t="sort">Sort by type (Photos / Videos / Music…)</span></label>
+    <span class="tvhint" data-t="dndhint">Drag files or folders from your PC onto a pane to upload.</span>
+  </div>
+  <div class="panes">
+    <div class="pane" id="paneA"></div>
+    <div class="pane" id="paneB"></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<dialog id="dlg"><div id="dlgBody"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button id="dlgNo">Cancel</button><button id="dlgYes" class="pri">OK</button></div></dialog>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const T={
+ en:{auto:"Auto-import on insert",storage:"Storage",jobs:"Transfers",nojobs:"No transfers yet.",browse:"Browse & copy",dedupe:"Skip duplicate content",sort:"Sort by type (Photos / Videos / Music…)",dndhint:"Drag files or folders from your PC onto a pane to upload.",
+  browseBtn:"Browse",importBtn:"Import all → HDD",eject:"Safe eject",mounted:"mounted",notmounted:"not mounted",ro:"read-only",rw:"read / write",free:"free",used:"used",nodisc:"no disc",copyTo:"Copy →",download:"Download",del:"Delete",mkdir:"New folder",up:"Up",
+  copying:"copying",verify:"verifying",scanning:"scanning",queued:"queued",done:"done",cancel:"Cancel",log:"Log",speed:"speed",eta:"ETA",copied:"copied",skipped:"skipped",dups:"duplicates",renamed:"renamed",verified:"verified",errors:"errors"},
+ ja:{auto:"挿入時に自動取り込み",storage:"ストレージ",jobs:"転送状況",nojobs:"転送はまだありません。",browse:"ブラウズ＆コピー",dedupe:"重複内容をスキップ",sort:"種類別に分類（写真／動画／音楽…）",dndhint:"PCからファイル／フォルダをペインへドラッグするとアップロードします。",
+  browseBtn:"開く",importBtn:"全て取り込み → HDD",eject:"安全に取り外し",mounted:"マウント済",notmounted:"未マウント",ro:"読み取り専用",rw:"読み書き可",free:"空き",used:"使用",nodisc:"ディスクなし",copyTo:"コピー →",download:"ダウンロード",del:"削除",mkdir:"新規フォルダ",up:"上へ",
+  copying:"コピー中",verify:"検証中",scanning:"スキャン中",queued:"待機中",done:"完了",cancel:"中止",log:"ログ",speed:"速度",eta:"残り",copied:"コピー",skipped:"スキップ",dups:"重複",renamed:"名前変更",verified:"検証済",errors:"エラー"}
+};
+let lang=(()=>{try{return localStorage.getItem("lang")||"en"}catch(e){return "en"}})();
+const tr=k=>(T[lang]&&T[lang][k])||T.en[k]||k;
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll("[data-t]").forEach(e=>e.textContent=tr(e.dataset.t));$("#btnLang").textContent=lang==="en"?"日本語":"English";renderCards();renderJobs();renderPane(PA);renderPane(PB)}
+$("#btnLang").onclick=()=>{lang=lang==="en"?"ja":"en";try{localStorage.setItem("lang",lang)}catch(e){}applyLang()};
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function human(b){if(b==null||isNaN(b))return"—";const u=["B","KB","MB","GB","TB"];let i=0;while(b>=1000&&i<4){b/=1000;i++}return (i===0||b>=100?b.toFixed(0):b.toFixed(1))+" "+u[i]}
+function dur(s){if(s==null||s<0||!isFinite(s))return"—";s=Math.round(s);const m=Math.floor(s/60),h=Math.floor(m/60);return h?`${h}h ${m%60}m`:m?`${m}m ${s%60}s`:`${s}s`}
+function when(t){return new Date(t*1000).toLocaleString()}
+function toast(msg,cls){const d=document.createElement("div");if(cls)d.className=cls;d.textContent=msg;$("#toast").appendChild(d);setTimeout(()=>d.remove(),cls==="bad"?9000:4500)}
+async function api(path,opt={}){
+  const o={headers:{"X-MS":"1"},...opt};
+  const r=await fetch(path,o);let j;try{j=await r.json()}catch(e){throw new Error("HTTP "+r.status)}
+  if(j.ok===false)throw new Error(j.error||"error");return j}
+const post=(p,params)=>api(p,{method:"POST",headers:{"X-MS":"1","Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(params).toString()});
+function confirmDlg(html){return new Promise(res=>{$("#dlgBody").innerHTML=html;const d=$("#dlg");$("#dlgYes").onclick=()=>{d.close();res(true)};$("#dlgNo").onclick=()=>{d.close();res(false)};d.showModal()})}
+
+// ---------------------------------------------------------------- storage cards
+let VOLS=[],INFO={},VSIG='';
+const ICON={HDD:"🗄️",USB:"🔌",SD:"💾",DVD:"📀"};
+function renderCards(){
+  const el=$("#cards");el.innerHTML="";
+  VOLS.forEach(v=>{
+    const used=v.total-v.free,pct=v.total?Math.round(100*used/v.total):0;
+    const c=document.createElement("div");c.className="card "+v.kind;
+    const state=!v.media?tr("nodisc"):v.mounted?(v.rw?tr("rw"):tr("ro")):(v.note||tr("notmounted"));
+    c.innerHTML=`<div class="top"><div class="ico">${ICON[v.kind]||"💽"}</div><div style="min-width:0"><div class="nm">${esc(v.name)}${v.label?` <span class="md">“${esc(v.label)}”</span>`:""}</div><div class="md">${esc(v.model||"")} · ${esc(v.dev)}</div></div></div>
+    <div class="cap"><span>${v.media?human(v.size||v.total):"—"} ${v.fs?("· "+esc(v.fs)):""}</span><span>${v.mounted?human(v.free)+" "+tr("free"):""}</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="tags"><span class="chip ${v.mounted?"ok":v.media?"warn":""}">${v.mounted?tr("mounted"):tr("notmounted")}</span><span class="chip">${esc(state)}</span><span class="chip">${esc(v.id)}</span></div>
+    <div class="acts"></div>`;
+    const a=c.querySelector(".acts");
+    if(v.mounted){
+      const b=document.createElement("button");b.textContent=tr("browseBtn");b.onclick=()=>{ (PA.v===v.id||!PA.v)?setPane(PA,v.id,"/"):setPane(PA,v.id,"/"); window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}) };a.appendChild(b);
+      if(v.kind!=="HDD"){
+        const hdd=VOLS.find(x=>x.kind==="HDD"&&x.mounted&&x.rw);
+        const i=document.createElement("button");i.className="pri";i.textContent=tr("importBtn");i.disabled=!hdd;i.onclick=()=>doImport(v);a.appendChild(i);
+        const e=document.createElement("button");e.textContent=tr("eject");e.onclick=()=>doEject(v);a.appendChild(e);
+      }
+    }else if(v.fs&&v.media){const b=document.createElement("button");b.textContent="Mount";b.onclick=async()=>{try{await post("/api/mount",{v:v.id});refresh()}catch(e){toast(e.message,"bad")}};a.appendChild(b)}
+    el.appendChild(c);
+  });
+  if(!VOLS.length)el.innerHTML='<div class="empty">No storage detected.</div>';
+}
+async function doImport(v){
+  const hdd=VOLS.find(x=>x.kind==="HDD"&&x.mounted&&x.rw);if(!hdd)return;
+  if(v.mounted&&v.total&&(v.total-v.free)>hdd.free){toast("Not enough space on "+hdd.name,"bad");return}
+  try{const r=await post("/api/import",{src:v.id,dst:hdd.id});toast("Import started: "+v.name,"ok");pollJobs(true)}catch(e){toast(e.message,"bad")}
+}
+async function doEject(v){
+  try{const r=await post("/api/umount",{v:v.id});toast(v.name+": safe to remove","ok");refresh()}catch(e){toast(v.name+": "+e.message,"bad")}
+}
+
+// ---------------------------------------------------------------- jobs
+let JOBS=[],showLog={};
+function renderJobs(){
+  const el=$("#jobs");if(!JOBS.length){el.innerHTML=`<div class="empty">${tr("nojobs")}</div>`;return}
+  el.innerHTML="";
+  JOBS.slice(0,6).forEach(j=>{
+    const active=["queued","scanning","copying"].includes(j.state);
+    const tot=j.bytes_total*(j.verify==="none"?1:2)||1;
+    const cpct=Math.min(100,100*(j.bytes_done+j.bytes_skipped*0)/(j.bytes_total||1));
+    const vpct=j.verify==="none"?0:Math.min(100,100*j.vbytes_done/(j.bytes_total||1));
+    const overall=(j.state==='done'||j.state==='done_with_errors')?100:Math.min(100,100*(j.bytes_done+j.vbytes_done+j.bytes_skipped*(j.verify==="none"?1:2))/tot);
+    const d=document.createElement("div");d.className="job";
+    const phase=j.state==="copying"?(j.phase==="verify"?tr("verify"):tr("copying")):tr(j.state)||j.state;
+    d.innerHTML=`<div class="h"><span class="t">${esc(j.label||"Copy")}</span><span class="chip">${esc(j.src)} → ${esc(j.dst)}</span><span class="chip state-${j.state}">${esc(phase)}</span><span class="chip">${j.verify==="none"?"no verify":j.verify==="sha256"?"SHA-256":"XXH64"}</span><span class="sp"></span>
+      ${active?`<button class="dng" data-c="${j.id}">${tr("cancel")}</button>`:""}<button data-l="${j.id}">${tr("log")}</button></div>
+    <div class="pbar"><div class="c" style="width:${cpct}%"></div><div class="v" style="width:${vpct}%;opacity:.55;height:6px;top:auto;bottom:0"></div><span>${overall.toFixed(1)}%</span></div>
+    <div class="stats"><span>${tr("copied")}: <b>${j.copied}</b>/${j.files_total}</span><span>${tr("verified")}: <b>${j.verified}</b></span><span>${tr("skipped")}: <b>${j.skipped}</b></span><span>${tr("dups")}: <b>${j.dups}</b></span><span>${tr("renamed")}: <b>${j.renamed}</b></span><span>${tr("errors")}: <b style="color:${j.errors_n?"var(--bad)":"inherit"}">${j.errors_n}</b></span>
+      <span>${human(j.bytes_done)} / ${human(j.bytes_total)}</span>${active&&j.speed>0?`<span>${tr("speed")}: <b>${human(j.speed)}/s</b></span><span>${tr("eta")}: <b>${dur(j.eta)}</b></span>`:""}${j.finished?`<span>${when(j.finished)}</span>`:""}</div>
+    ${active&&j.cur?`<div class="tvhint" style="margin-top:6px">▶ ${esc(j.cur)} ${j.cur_size?`(${human(j.cur_done)} / ${human(j.cur_size)})`:""}</div>`:""}
+    ${j.note?`<div class="tvhint">${esc(j.note)}</div>`:""}
+    ${j.errors&&j.errors.length?`<div class="log" style="color:var(--bad)">${esc(j.errors.join("\n"))}</div>`:""}
+    ${showLog[j.id]?`<div class="log" id="log-${j.id}">…</div>`:""}`;
+    el.appendChild(d);
+    d.querySelectorAll("[data-c]").forEach(b=>b.onclick=async()=>{try{await post("/api/cancel",{id:b.dataset.c});toast("Cancel requested")}catch(e){toast(e.message,"bad")}});
+    d.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{showLog[b.dataset.l]=!showLog[b.dataset.l];renderJobs();loadLog(b.dataset.l)});
+    if(showLog[j.id])loadLog(j.id);
+  });
+  const act=JOBS.filter(j=>["queued","scanning","copying"].includes(j.state)).length;
+  $("#cJobs").textContent=act?`${act} running`:"idle";$("#cJobs").className="chip "+(act?"warn":"ok");
+}
+async function loadLog(id){const r=await fetch("/api/job?id="+id+"&log=1");const t=await r.text();const e=document.getElementById("log-"+id);if(e){e.textContent=t||"(empty)";e.scrollTop=e.scrollHeight}}
+let jobTimer=null,lastActive=false;
+async function pollJobs(kick){
+  try{const r=await api("/api/jobs?n=8");const was=JOBS.map(j=>j.id+j.state).join();JOBS=r.jobs;renderJobs();
+    const act=JOBS.some(j=>["queued","scanning","copying"].includes(j.state));
+    if(lastActive&&!act){refresh();["A","B"].forEach(()=>{});loadPane(PA);loadPane(PB)}
+    lastActive=act;
+  }catch(e){}
+  clearTimeout(jobTimer);jobTimer=setTimeout(pollJobs,lastActive?800:3000);
+}
+
+// ---------------------------------------------------------------- panes
+const PA={el:$("#paneA"),id:"A",v:null,p:"/",entries:[],sel:new Set(),total:0,free:0};
+const PB={el:$("#paneB"),id:"B",v:null,p:"/",entries:[],sel:new Set(),total:0,free:0};
+const other=p=>p===PA?PB:PA;
+function setPane(p,v,path){p.v=v;p.p=path||"/";p.sel.clear();loadPane(p)}
+async function loadPane(p){
+  if(!p.v){renderPane(p);return}
+  try{const r=await api(`/api/ls?v=${encodeURIComponent(p.v)}&p=${encodeURIComponent(p.p)}`);p.entries=r.entries;p.total=r.total;p.free=r.free;p.err=null}
+  catch(e){p.entries=[];p.err=e.message}
+  renderPane(p);
+}
+function joinp(a,b){return (a==="/"?"":a)+"/"+b}
+function renderPane(p){
+  const vol=VOLS.find(v=>v.id===p.v);
+  const opts=VOLS.filter(v=>v.mounted).map(v=>`<option value="${esc(v.id)}" ${v.id===p.v?"selected":""}>${esc(v.name)}${v.label?" “"+esc(v.label)+"”":""} (${esc(v.id)})</option>`).join("");
+  const parts=p.p.split("/").filter(Boolean);let acc="";
+  const crumbs=[`<a data-p="/">/</a>`].concat(parts.map(s=>{acc+="/"+s;return`<a data-p="${esc(acc)}">${esc(s)}</a>`})).join(" › ");
+  const dst=other(p);
+  p.el.innerHTML=`<div class="ph"><select class="vsel"><option value="">— select —</option>${opts}</select><div class="crumbs">${p.v?crumbs:""}</div>
+    <button class="up" ${p.p==="/"?"disabled":""}>${tr("up")}</button><button class="mk" ${vol&&vol.rw?"":"disabled"}>${tr("mkdir")}</button></div>
+  <div class="list">${p.err?`<div class="empty" style="color:var(--bad)">${esc(p.err)}</div>`:
+   p.v?`<table><thead><tr><th style="width:26px"><input type="checkbox" class="all"></th><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody>${
+    p.entries.map((e,i)=>`<tr class="row ${p.sel.has(e.n)?"sel":""}" data-i="${i}" draggable="true"><td><input type="checkbox" class="ck" ${p.sel.has(e.n)?"checked":""}></td><td class="n">${e.d?"📁":"📄"} ${esc(e.n)}</td><td class="r">${e.d?"":human(e.s)}</td><td class="r">${e.m?new Date(e.m*1000).toLocaleString():""}</td></tr>`).join("")}</tbody></table>${p.entries.length?"":`<div class="empty">(empty)</div>`}`
+   :`<div class="empty">Select a storage</div>`}</div>
+  <div class="pf"><span>${p.sel.size} selected</span><span class="sp"></span>
+    <button class="dl" ${p.sel.size?"":"disabled"}>${tr("download")}</button>
+    <button class="rm dng" ${p.sel.size&&vol&&vol.rw?"":"disabled"}>${tr("del")}</button>
+    <button class="cp pri" ${p.sel.size&&dst.v&&VOLS.find(v=>v.id===dst.v&&v.rw)?"":"disabled"}>${tr("copyTo")} ${esc(dst.v||"?")}:${esc(dst.p)}</button></div>`;
+  const q=s=>p.el.querySelector(s);
+  q(".vsel").onchange=e=>setPane(p,e.target.value||null,"/");
+  p.el.querySelectorAll(".crumbs a").forEach(a=>a.onclick=()=>{p.p=a.dataset.p;p.sel.clear();loadPane(p)});
+  q(".up").onclick=()=>{p.p=p.p.replace(/\/[^\/]*$/,"")||"/";p.sel.clear();loadPane(p)};
+  q(".mk").onclick=async()=>{const n=prompt(tr("mkdir"));if(!n)return;try{await post("/api/mkdir",{v:p.v,p:joinp(p.p,n)});loadPane(p)}catch(e){toast(e.message,"bad")}};
+  const all=q(".all");if(all)all.onchange=()=>{p.entries.forEach(e=>all.checked?p.sel.add(e.n):p.sel.delete(e.n));renderPane(p)};
+  p.el.querySelectorAll("tr.row").forEach(tr_=>{
+    const e=p.entries[+tr_.dataset.i];
+    tr_.querySelector(".ck").onchange=ev=>{ev.target.checked?p.sel.add(e.n):p.sel.delete(e.n);renderPane(p)};
+    tr_.querySelector(".n").onclick=()=>{ if(e.d){p.p=joinp(p.p,e.n);p.sel.clear();loadPane(p)} else window.open(`/dl?v=${encodeURIComponent(p.v)}&p=${encodeURIComponent(joinp(p.p,e.n))}&inline=1`,"_blank") };
+    tr_.ondragstart=ev=>{if(!p.sel.has(e.n)){p.sel.clear();p.sel.add(e.n)}ev.dataTransfer.setData("text/x-ms-pane",p.id);ev.dataTransfer.effectAllowed="copy"};
+  });
+  q(".dl").onclick=()=>{p.sel.forEach(n=>{const e=p.entries.find(x=>x.n===n);if(e&&!e.d){const a=document.createElement("a");a.href=`/dl?v=${encodeURIComponent(p.v)}&p=${encodeURIComponent(joinp(p.p,n))}`;a.download=n;document.body.appendChild(a);a.click();a.remove()}else if(e)toast("Folders cannot be downloaded directly — copy them to another storage instead.")})};
+  q(".rm").onclick=async()=>{
+    const names=[...p.sel];
+    if(!await confirmDlg(`<b>Delete ${names.length} item(s)</b> from <code>${esc(p.v)}:${esc(p.p)}</code>?<br><br><span style="color:var(--bad)">This cannot be undone.</span><div class="log">${esc(names.join("\n"))}</div>`))return;
+    for(const n of names){try{await post("/api/rm",{v:p.v,p:joinp(p.p,n),confirm:"yes"})}catch(e){toast(n+": "+e.message,"bad")}}
+    p.sel.clear();loadPane(p);refresh()};
+  q(".cp").onclick=()=>doCopy(p);
+  // drop targets: files from this PC, or items dragged from the other pane
+  p.el.ondragover=e=>{e.preventDefault();p.el.classList.add("drop")};
+  p.el.ondragleave=()=>p.el.classList.remove("drop");
+  p.el.ondrop=async e=>{e.preventDefault();p.el.classList.remove("drop");
+    const from=e.dataTransfer.getData("text/x-ms-pane");
+    if(from){const src=from==="A"?PA:PB;if(src!==p)doCopy(src);return}
+    if(!p.v){toast("Select a storage first","bad");return}
+    const items=[...e.dataTransfer.items].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+    uploadEntries(p,items.length?items:[...e.dataTransfer.files])};
+}
+async function doCopy(src){
+  const dst=other(src);const names=[...src.sel];if(!names.length||!dst.v)return;
+  const params=new URLSearchParams();names.forEach(n=>params.append("src",`${src.v}:${joinp(src.p,n)}`));
+  params.set("dst",dst.v);params.set("dstp",dst.p);params.set("verify",$("#optVerify").value);params.set("dedupe",$("#optDedupe").checked?"1":"0");params.set("sort",$("#optSort").checked?"1":"0");params.set("label",`Copy ${src.v} → ${dst.v}`);
+  try{const r=await api("/api/copy",{method:"POST",headers:{"X-MS":"1","Content-Type":"application/x-www-form-urlencoded"},body:params.toString()});toast("Copy started","ok");src.sel.clear();renderPane(src);pollJobs(true)}catch(e){toast(e.message,"bad")}
+}
+
+// ---------------------------------------------------------------- upload (files + folders) with a progress card
+let UP=null;
+function walkEntry(en,path,out){return new Promise(async res=>{
+  if(en.isFile){en.file(f=>{out.push({f,path:path+f.name});res()},()=>res())}
+  else if(en.isDirectory){const rd=en.createReader();const all=[];const rd1=()=>rd.readEntries(async es=>{if(!es.length){for(const c of all)await walkEntry(c,path+en.name+"/",out);res()}else{all.push(...es);rd1()}},()=>res());rd1()}
+  else res()})}
+async function uploadEntries(p,items){
+  const files=[];
+  for(const it of items){ if(it.isFile!==undefined)await walkEntry(it,"",files); else files.push({f:it,path:it.name}) }
+  if(!files.length)return;
+  const vol=VOLS.find(v=>v.id===p.v);if(!vol||!vol.rw){toast("Destination is read-only","bad");return}
+  const total=files.reduce((a,x)=>a+x.f.size,0);
+  UP={n:files.length,done:0,bytes:0,total,cur:"",t0:Date.now(),err:0};
+  renderUpload();
+  for(const x of files){
+    UP.cur=x.path;renderUpload();
+    try{await putFile(p.v,joinp(p.p,x.path),x.f,loaded=>{UP.curBytes=loaded;renderUpload()});UP.bytes+=x.f.size}
+    catch(e){UP.err++;toast(x.path+": "+e.message,"bad")}
+    UP.done++;UP.curBytes=0;renderUpload();
+  }
+  toast(`Upload finished: ${UP.done-UP.err}/${UP.n} files`,UP.err?"bad":"ok");
+  setTimeout(()=>{UP=null;renderUpload()},4000);loadPane(p);refresh();
+}
+function putFile(v,path,file,prog){return new Promise((res,rej)=>{
+  const x=new XMLHttpRequest();x.open("PUT",`/api/put?v=${encodeURIComponent(v)}&p=${encodeURIComponent(path)}&mk=1`);x.setRequestHeader("X-MS","1");
+  x.upload.onprogress=e=>prog&&prog(e.loaded);
+  x.onload=()=>{try{const j=JSON.parse(x.responseText);j.ok===false?rej(new Error(j.error)):res(j)}catch(e){rej(new Error("HTTP "+x.status))}};
+  x.onerror=()=>rej(new Error("network error"));x.send(file)})}
+function renderUpload(){
+  let el=document.getElementById("upcard");
+  if(!UP){if(el)el.remove();return}
+  if(!el){el=document.createElement("div");el.id="upcard";el.className="job";$("#jobs").prepend(el)}
+  const done=UP.bytes+(UP.curBytes||0),pct=UP.total?100*done/UP.total:100,sec=(Date.now()-UP.t0)/1000;
+  el.innerHTML=`<div class="h"><span class="t">Upload from this PC</span><span class="chip warn">${UP.done}/${UP.n} files</span></div><div class="pbar"><div class="c" style="width:${pct}%"></div><span>${pct.toFixed(1)}%</span></div>
+  <div class="stats"><span>${human(done)} / ${human(UP.total)}</span><span>${tr("speed")}: <b>${human(done/Math.max(sec,.5))}/s</b></span></div><div class="tvhint">▶ ${esc(UP.cur)}</div>`;
+}
+
+// ---------------------------------------------------------------- refresh loops
+async function refresh(){
+  try{const r=await api("/api/storage");const sig=JSON.stringify(r.volumes.map(v=>[v.id,v.mounted,v.rw,v.media,v.total>>20,v.free>>24]));const changed=sig!==VSIG;VSIG=sig;VOLS=r.volumes;if(changed)renderCards();
+    [PA,PB].forEach(p=>{if(p.v&&!VOLS.find(v=>v.id===p.v&&v.mounted)){p.v=null;p.entries=[]}});
+    if(!PA.v){const f=VOLS.find(v=>v.mounted&&v.kind!=="HDD");if(f)setPane(PA,f.id,"/")}
+    if(!PB.v){const h=VOLS.find(v=>v.mounted&&v.kind==="HDD");if(h)setPane(PB,h.id,"/")}
+    if(changed){renderPane(PA);renderPane(PB)}
+  }catch(e){}
+  try{INFO=await api("/api/info");$("#cMem").textContent=`mem ${Math.round(INFO.mem_avail_kb/1024)} MB free · up ${dur(INFO.uptime)}`;$("#optAuto").checked=INFO.autoimport;$("#optVerify").value=INFO.verify;$("#sub").textContent=`${INFO.version} · LAN :${INFO.port}${INFO.auth?" · PIN":""}`}catch(e){}
+}
+$("#optAuto").onchange=async e=>{try{await post("/api/config",{autoimport:e.target.checked?"1":"0"});toast("Auto-import "+(e.target.checked?"ON — re-insert a card":"OFF"),"ok")}catch(x){toast(x.message,"bad")}};
+$("#optVerify").onchange=async e=>{try{await post("/api/config",{verify:e.target.value})}catch(x){}};
+applyLang();refresh();pollJobs();setInterval(refresh,4000);
+</script>
+</body>
+</html>

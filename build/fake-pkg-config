@@ -1,0 +1,3 @@
+#!/bin/sh
+# stub: claims to be pkg-config 0.29 but knows no packages (configure must not pick up host libs)
+case "$1" in --version) echo 0.29;; --atleast-pkgconfig-version) exit 0;; *) exit 1;; esac
